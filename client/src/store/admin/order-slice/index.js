@@ -1,84 +1,120 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
+// 🌍 Auto-detect API URL for both local & production
+const API_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.MODE === "production"
+    ? "https://fitora-backend.onrender.com" // 🔗 Your Render backend URL
+    : "http://localhost:5000");              // 💻 Local backend
+
 const initialState = {
-  orderList: [],
-  orderDetails: null,
+  isAuthenticated: false,
+  isLoading: true,
+  user: null,
 };
 
-export const getAllOrdersForAdmin = createAsyncThunk(
-  "/order/getAllOrdersForAdmin",
-  async () => {
-    const response = await axios.get(
-      `http://localhost:5000/api/admin/orders/get`
-    );
-
+// 🧩 REGISTER USER
+export const registerUser = createAsyncThunk(
+  "/auth/register",
+  async (formData) => {
+    const response = await axios.post(`${API_URL}/api/auth/register`, formData, {
+      withCredentials: true,
+    });
     return response.data;
   }
 );
 
-export const getOrderDetailsForAdmin = createAsyncThunk(
-  "/order/getOrderDetailsForAdmin",
-  async (id) => {
-    const response = await axios.get(
-      `http://localhost:5000/api/admin/orders/details/${id}`
-    );
-
+// 🔐 LOGIN USER
+export const loginUser = createAsyncThunk(
+  "/auth/login",
+  async (formData) => {
+    const response = await axios.post(`${API_URL}/api/auth/login`, formData, {
+      withCredentials: true,
+    });
     return response.data;
   }
 );
 
-export const updateOrderStatus = createAsyncThunk(
-  "/order/updateOrderStatus",
-  async ({ id, orderStatus }) => {
-    const response = await axios.put(
-      `http://localhost:5000/api/admin/orders/update/${id}`,
-      {
-        orderStatus,
-      }
-    );
+// 🚪 LOGOUT USER
+export const logoutUser = createAsyncThunk("/auth/logout", async () => {
+  const response = await axios.post(
+    `${API_URL}/api/auth/logout`,
+    {},
+    { withCredentials: true }
+  );
+  return response.data;
+});
 
-    return response.data;
-  }
-);
+// ✅ CHECK AUTHENTICATION STATUS
+export const checkAuth = createAsyncThunk("/auth/checkauth", async () => {
+  const response = await axios.get(`${API_URL}/api/auth/check-auth`, {
+    withCredentials: true,
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+    },
+  });
+  return response.data;
+});
 
-const adminOrderSlice = createSlice({
-  name: "adminOrderSlice",
+const authSlice = createSlice({
+  name: "auth",
   initialState,
   reducers: {
-    resetOrderDetails: (state) => {
-      console.log("resetOrderDetails");
-
-      state.orderDetails = null;
+    setUser: (state, action) => {
+      state.user = action.payload;
+      state.isAuthenticated = !!action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getAllOrdersForAdmin.pending, (state) => {
+      // REGISTER
+      .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(getAllOrdersForAdmin.fulfilled, (state, action) => {
+      .addCase(registerUser.fulfilled, (state) => {
         state.isLoading = false;
-        state.orderList = action.payload.data;
+        state.user = null;
+        state.isAuthenticated = false;
       })
-      .addCase(getAllOrdersForAdmin.rejected, (state) => {
+      .addCase(registerUser.rejected, (state) => {
         state.isLoading = false;
-        state.orderList = [];
       })
-      .addCase(getOrderDetailsForAdmin.pending, (state) => {
+
+      // LOGIN
+      .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(getOrderDetailsForAdmin.fulfilled, (state, action) => {
+      .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.orderDetails = action.payload.data;
+        state.user = action.payload.success ? action.payload.user : null;
+        state.isAuthenticated = action.payload.success;
       })
-      .addCase(getOrderDetailsForAdmin.rejected, (state) => {
+      .addCase(loginUser.rejected, (state) => {
         state.isLoading = false;
-        state.orderDetails = null;
+      })
+
+      // CHECK AUTH
+      .addCase(checkAuth.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.success ? action.payload.user : null;
+        state.isAuthenticated = action.payload.success;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.isLoading = false;
+      })
+
+      // LOGOUT
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
       });
   },
 });
 
-export const { resetOrderDetails } = adminOrderSlice.actions;
-
-export default adminOrderSlice.reducer;
+export const { setUser } = authSlice.actions;
+export default authSlice.reducer;

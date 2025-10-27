@@ -1,34 +1,35 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
+// ✅ Use Vite environment variable for backend API
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const initialState = {
   isLoading: false,
   featureImageList: [],
 };
 
+// ✅ Fetch all feature images
 export const getFeatureImages = createAsyncThunk(
   "/order/getFeatureImages",
   async () => {
-    const response = await axios.get(
-      `http://localhost:5000/api/common/feature/get`
-    );
-
+    const response = await axios.get(`${API_BASE_URL}/api/common/feature/get`);
     return response.data;
   }
 );
 
+// ✅ Add a new feature image
 export const addFeatureImage = createAsyncThunk(
   "/order/addFeatureImage",
   async (image) => {
-    const response = await axios.post(
-      `http://localhost:5000/api/common/feature/add`,
-      { image }
-    );
-
+    const response = await axios.post(`${API_BASE_URL}/api/common/feature/add`, {
+      image,
+    });
     return response.data;
   }
 );
 
+// ✅ Slice
 const commonSlice = createSlice({
   name: "commonSlice",
   initialState,

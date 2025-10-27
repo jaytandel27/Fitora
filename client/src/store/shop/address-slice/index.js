@@ -1,57 +1,56 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+// ✅ Automatically picks correct backend URL (localhost or production)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const initialState = {
   isLoading: false,
   addressList: [],
 };
 
+// ✅ Add new address
 export const addNewAddress = createAsyncThunk(
   "/addresses/addNewAddress",
   async (formData) => {
-    const response = await axios.post(
-      "http://localhost:5000/api/shop/address/add",
-      formData
-    );
-
+    const response = await axios.post(`${API_BASE_URL}/api/shop/address/add`, formData);
     return response.data;
   }
 );
 
+// ✅ Fetch all addresses for a user
 export const fetchAllAddresses = createAsyncThunk(
   "/addresses/fetchAllAddresses",
   async (userId) => {
-    const response = await axios.get(
-      `http://localhost:5000/api/shop/address/get/${userId}`
-    );
-
+    const response = await axios.get(`${API_BASE_URL}/api/shop/address/get/${userId}`);
     return response.data;
   }
 );
 
-export const editaAddress = createAsyncThunk(
-  "/addresses/editaAddress",
+// ✅ Edit address
+export const editAddress = createAsyncThunk(
+  "/addresses/editAddress",
   async ({ userId, addressId, formData }) => {
     const response = await axios.put(
-      `http://localhost:5000/api/shop/address/update/${userId}/${addressId}`,
+      `${API_BASE_URL}/api/shop/address/update/${userId}/${addressId}`,
       formData
     );
-
     return response.data;
   }
 );
 
+// ✅ Delete address
 export const deleteAddress = createAsyncThunk(
   "/addresses/deleteAddress",
   async ({ userId, addressId }) => {
     const response = await axios.delete(
-      `http://localhost:5000/api/shop/address/delete/${userId}/${addressId}`
+      `${API_BASE_URL}/api/shop/address/delete/${userId}/${addressId}`
     );
-
     return response.data;
   }
 );
 
+// ✅ Slice setup
 const addressSlice = createSlice({
   name: "address",
   initialState,
@@ -61,7 +60,7 @@ const addressSlice = createSlice({
       .addCase(addNewAddress.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(addNewAddress.fulfilled, (state, action) => {
+      .addCase(addNewAddress.fulfilled, (state) => {
         state.isLoading = false;
       })
       .addCase(addNewAddress.rejected, (state) => {
