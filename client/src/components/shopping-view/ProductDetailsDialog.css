@@ -1,0 +1,218 @@
+/* Product Details Dialog - Classic Black & White Theme */
+.product-dialog {
+  display: flex;
+  flex-wrap: nowrap;
+  max-width: 60vw;
+  margin: 0 auto;
+  padding: 2rem;
+  gap: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #111;
+}
+
+.product-dialog .image-container {
+  flex: 0 0 320px;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.product-dialog .image-container img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+  filter: grayscale(10%);
+}
+
+.product-dialog .image-container img:hover {
+  transform: scale(1.04);
+  filter: grayscale(0%);
+}
+
+.product-dialog .details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.product-dialog h1 {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 0.3rem;
+}
+
+.product-dialog p.description {
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.5;
+}
+
+.product-dialog .price {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.product-dialog .price .original {
+  text-decoration: line-through;
+  color: #777;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.product-dialog .price .sale {
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: #000;
+}
+
+.product-dialog .rating {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0.5rem 0;
+}
+
+.product-dialog .rating span {
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.product-dialog .add-to-cart button {
+  width: 100%;
+  padding: 0.65rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.product-dialog .add-to-cart button:hover:not(:disabled) {
+  background-color: #222;
+  transform: translateY(-1px);
+}
+
+.product-dialog .add-to-cart button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.product-dialog .separator {
+  border-top: 1px solid #ccc;
+  margin: 1.5rem 0;
+}
+
+.product-dialog .reviews {
+  margin-top: 1rem;
+  max-height: 250px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.product-dialog .review-item {
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+  background-color: #f6f6f6;
+  padding: 0.7rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.product-dialog .review-item .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.product-dialog .review-item .content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.product-dialog .review-item .content h3 {
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0;
+  color: #111;
+}
+
+.product-dialog .review-item .content p {
+  font-size: 0.95rem;
+  color: #333;
+  margin: 0;
+}
+
+.product-dialog .review-item .star-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.product-dialog .review-form {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.product-dialog .review-form input,
+.product-dialog .review-form textarea {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  font-size: 0.95rem;
+  width: 100%;
+  outline: none;
+  background-color: #fff;
+  color: #111;
+  transition: border-color 0.2s ease;
+}
+
+.product-dialog .review-form input:focus,
+.product-dialog .review-form textarea:focus {
+  border-color: #000;
+}
+
+.product-dialog .review-form button {
+  width: fit-content;
+  padding: 0.45rem 1rem;
+  font-weight: 600;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.product-dialog .review-form button:hover:not(:disabled) {
+  background-color: #222;
+}
+
+.product-dialog .review-form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
