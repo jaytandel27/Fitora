@@ -1,144 +1,96 @@
-import { useState } from "react";
-import CommonForm from "../common/form";
-import { DialogContent } from "../ui/dialog";
-import { Label } from "../ui/label";
-import { Separator } from "../ui/separator";
-import { Badge } from "../ui/badge";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getAllOrdersForAdmin,
-  getOrderDetailsForAdmin,
-  updateOrderStatus,
-} from "@/store/admin/order-slice";
-import { useToast } from "../ui/use-toast";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
-const initialFormData = {
-  status: "",
+const initialState = {
+  isLoading: false,
+  orderList: [],
+  orderDetails: null,
 };
 
-function AdminOrderDetailsView({ orderDetails }) {
-  const [formData, setFormData] = useState(initialFormData);
-  const { user } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
-  const { toast } = useToast();
-
-  console.log(orderDetails, "orderDetailsorderDetails");
-
-  function handleUpdateStatus(event) {
-    event.preventDefault();
-    const { status } = formData;
-
-    dispatch(
-      updateOrderStatus({ id: orderDetails?._id, orderStatus: status })
-    ).then((data) => {
-      if (data?.payload?.success) {
-        dispatch(getOrderDetailsForAdmin(orderDetails?._id));
-        dispatch(getAllOrdersForAdmin());
-        setFormData(initialFormData);
-        toast({
-          title: data?.payload?.message,
-        });
-      }
-    });
+// ✅ Fetch all orders for admin
+export const getAllOrdersForAdmin = createAsyncThunk(
+  "/admin/getAllOrdersForAdmin",
+  async () => {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_BASE_URL}/api/admin/orders`
+    );
+    return response.data;
   }
+);
 
-  return (
-    <DialogContent className="sm:max-w-[600px]">
-      <div className="grid gap-6">
-        <div className="grid gap-2">
-          <div className="flex mt-6 items-center justify-between">
-            <p className="font-medium">Order ID</p>
-            <Label>{orderDetails?._id}</Label>
-          </div>
-          <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Order Date</p>
-            <Label>{orderDetails?.orderDate.split("T")[0]}</Label>
-          </div>
-          <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Order Price</p>
-            <Label>${orderDetails?.totalAmount}</Label>
-          </div>
-          <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Payment method</p>
-            <Label>{orderDetails?.paymentMethod}</Label>
-          </div>
-          <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Payment Status</p>
-            <Label>{orderDetails?.paymentStatus}</Label>
-          </div>
-          <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Order Status</p>
-            <Label>
-              <Badge
-                className={`py-1 px-3 ${
-                  orderDetails?.orderStatus === "confirmed"
-                    ? "bg-green-500"
-                    : orderDetails?.orderStatus === "rejected"
-                    ? "bg-red-600"
-                    : "bg-black"
-                }`}
-              >
-                {orderDetails?.orderStatus}
-              </Badge>
-            </Label>
-          </div>
-        </div>
-        <Separator />
-        <div className="grid gap-4">
-          <div className="grid gap-2">
-            <div className="font-medium">Order Details</div>
-            <ul className="grid gap-3">
-              {orderDetails?.cartItems && orderDetails?.cartItems.length > 0
-                ? orderDetails?.cartItems.map((item) => (
-                    <li className="flex items-center justify-between">
-                      <span>Title: {item.title}</span>
-                      <span>Quantity: {item.quantity}</span>
-                      <span>Price: ${item.price}</span>
-                    </li>
-                  ))
-                : null}
-            </ul>
-          </div>
-        </div>
-        <div className="grid gap-4">
-          <div className="grid gap-2">
-            <div className="font-medium">Shipping Info</div>
-            <div className="grid gap-0.5 text-muted-foreground">
-              <span>{user.userName}</span>
-              <span>{orderDetails?.addressInfo?.address}</span>
-              <span>{orderDetails?.addressInfo?.city}</span>
-              <span>{orderDetails?.addressInfo?.pincode}</span>
-              <span>{orderDetails?.addressInfo?.phone}</span>
-              <span>{orderDetails?.addressInfo?.notes}</span>
-            </div>
-          </div>
-        </div>
+// ✅ Fetch specific order details
+export const getOrderDetailsForAdmin = createAsyncThunk(
+  "/admin/getOrderDetailsForAdmin",
+  async (orderId) => {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_BASE_URL}/api/admin/orders/${orderId}`
+    );
+    return response.data;
+  }
+);
 
-        <div>
-          <CommonForm
-            formControls={[
-              {
-                label: "Order Status",
-                name: "status",
-                componentType: "select",
-                options: [
-                  { id: "pending", label: "Pending" },
-                  { id: "inProcess", label: "In Process" },
-                  { id: "inShipping", label: "In Shipping" },
-                  { id: "delivered", label: "Delivered" },
-                  { id: "rejected", label: "Rejected" },
-                ],
-              },
-            ]}
-            formData={formData}
-            setFormData={setFormData}
-            buttonText={"Update Order Status"}
-            onSubmit={handleUpdateStatus}
-          />
-        </div>
-      </div>
-    </DialogContent>
-  );
-}
+// ✅ Update order status (the missing function)
+export const updateOrderStatus = createAsyncThunk(
+  "/admin/updateOrderStatus",
+  async ({ id, orderStatus }) => {
+    const response = await axios.put(
+      `${import.meta.env.VITE_API_BASE_URL}/api/admin/order/update/${id}`,
+      { orderStatus }
+    );
+    return response.data;
+  }
+);
 
-export default AdminOrderDetailsView;
+const adminOrderSlice = createSlice({
+  name: "adminOrders",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      // get all orders
+      .addCase(getAllOrdersForAdmin.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getAllOrdersForAdmin.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.orderList = action.payload.data;
+      })
+      .addCase(getAllOrdersForAdmin.rejected, (state) => {
+        state.isLoading = false;
+        state.orderList = [];
+      })
+
+      // get order details
+      .addCase(getOrderDetailsForAdmin.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getOrderDetailsForAdmin.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.orderDetails = action.payload.data;
+      })
+      .addCase(getOrderDetailsForAdmin.rejected, (state) => {
+        state.isLoading = false;
+        state.orderDetails = null;
+      })
+
+      // ✅ update order status
+      .addCase(updateOrderStatus.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateOrderStatus.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const updatedOrder = action.payload.data;
+        const index = state.orderList.findIndex(
+          (o) => o._id === updatedOrder._id
+        );
+        if (index !== -1) {
+          state.orderList[index] = updatedOrder;
+        }
+      })
+      .addCase(updateOrderStatus.rejected, (state) => {
+        state.isLoading = false;
+      });
+  },
+});
+
+export default adminOrderSlice.reducer;
