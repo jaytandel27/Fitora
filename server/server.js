@@ -2,6 +2,11 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const dotenv = require("dotenv");
+
+// Load environment variables
+dotenv.config();
+
 const authRouter = require("./routes/auth/auth-routes");
 const adminProductsRouter = require("./routes/admin/products-routes");
 const adminOrderRouter = require("./routes/admin/order-routes");
@@ -15,16 +20,24 @@ const shopReviewRouter = require("./routes/shop/review-routes");
 
 const commonFeatureRouter = require("./routes/common/feature-routes");
 
-mongoose.connect('mongodb+srv://jmtandel2021_db_user:Jay_17182745@cluster0.gnq2k3c.mongodb.net/')
-.then(()=>console.log("mongoDB connected"))
-.catch((error)=> console.log(error));
+// ✅ MongoDB Connection (secured)
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log("✅ MongoDB connected successfully"))
+.catch((error) => console.log("❌ MongoDB connection error:", error));
 
-const app =express()
+const app = express();
 const PORT = process.env.PORT || 5000;
 
+// ✅ CORS setup (update before deployment)
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      "https://your-frontend-domain.vercel.app" // <-- add your deployed frontend URL
+    ],
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: [
       "Content-Type",
@@ -39,6 +52,8 @@ app.use(
 
 app.use(cookieParser());
 app.use(express.json());
+
+// ✅ API Routes
 app.use("/api/auth", authRouter);
 app.use("/api/admin/products", adminProductsRouter);
 app.use("/api/admin/orders", adminOrderRouter);
@@ -52,4 +67,9 @@ app.use("/api/shop/review", shopReviewRouter);
 
 app.use("/api/common/feature", commonFeatureRouter);
 
-app.listen(PORT, () => console.log(`Server is now running on port ${PORT}`));
+// ✅ Default route (optional for Render health check)
+app.get("/", (req, res) => {
+  res.send("API is running successfully...");
+});
+
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
