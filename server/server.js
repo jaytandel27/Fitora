@@ -31,12 +31,12 @@ mongoose.connect(process.env.MONGO_URI, {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ CORS setup (update before deployment)
+// ✅ CORS setup for local + production (Vercel)
 app.use(
   cors({
     origin: [
-      "http://localhost:5173",
-      "https://your-frontend-domain.vercel.app" // <-- add your deployed frontend URL
+      "http://localhost:5173",        // Local (development)
+      "https://fitora-six.vercel.app" // ✅ Your main production frontend
     ],
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: [
